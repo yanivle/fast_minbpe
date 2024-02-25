@@ -22,7 +22,7 @@ class Heapy:
 
     def swap_with_parent(self, node: Node):
         # Might be nicer to just implement a swap of 2 arbitrary elements (will also be easier to implement remove).
-        # This function is really simple - just a bunch of pointers around:
+        # This function is really simple - just move a bunch of pointers around:
         # - Update last and root if needed
         # - Fix 3 bidirectional pointers from node and node.p. Since we're swapping a child with its parent,
         #   2 pairs are counted twice, so we only need to fix 10 pointers.
@@ -41,7 +41,6 @@ class Heapy:
             node.l.p = p
         if node.r is not None:
             node.r.p = p
-        # Fix outgoing:
         if node is p.l:
             if p.r is not None:
                 p.r.p = node
