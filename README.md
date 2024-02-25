@@ -4,5 +4,5 @@ For example, on my laptop, training/tokenizing the taylorswift.txt file with a v
 
 |              |  minbpe (Karpathy's)       |   fast_minbpe (this colab)|
 |--------------|---------------|--------------|
-|Training      |  110.10 secs  | 13.65 secs   |
+|Training      |  110.10 secs  | 1.89 secs   |
 |Tokenizing    |  190.91 secs  | 0.84 secs    |
