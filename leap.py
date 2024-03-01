@@ -1,7 +1,9 @@
 # A "Leap" (or should I call it a "Leaped-List"?) is a data strucure
-# representing an ordered array, supporting the same ops as a basic
-# doubly-linked list in O(1):
+# representing an ordered array, that supports efficient in-order iteration on
+# all elements as well as efficient in-order iteration on all elements *with a
+# given value*.
 #
+# Specifically, it supports the same ops as a basic doubly-linked list in O(1):
 # - append(x): appends x to the end of the leap.
 # - delete(n): removes node n from the leap.
 # - start(x): returns the first node in the leap.
@@ -9,18 +11,21 @@
 # - next(n): returns the node following node n.
 # - prev(n): returns the node preceding node n.
 #
-# It also supports these leap operations in O(1) as well:
+# It also supports these leap-specific operations in O(1) as well:
 # - first(x): returns the first node in the leap *with value x*.
 # - last(x): returns the last node in the leap *with value x*.
 # - leap(n): returns first node after node n *with the same value as n*.
 # - leapback(n): returns last node before node n *with the same value as n*.
-# - setvalue(n, x): set the value of node n to x (keep its position).
-#
-# In addition to standard efficient in-order iteration on all elements, a leap
-# also allows efficient in-order iteration on all elements with a given value.
+# - set_value(n, x): sets the value of node n to x (must be last node with value x).
 #
 # I guess this data structure must exist, so if you know it and know its name,
 # please lmk :)
+#
+# The code is about twice as long as it needs to be as the impls of the pos ops
+# and the value ops are almost identical. Originally I had such a compact
+# implementation, with the added benefit of being easily generalizable to
+# leaping by any number of object properties, but it was slower than the more
+# verbose one below, so I'm keeping this one.
 
 
 class Leap:
@@ -36,19 +41,19 @@ class Leap:
                 self.prev.next = self.next
             if self.next is not None:
                 self.next.prev = self.prev
-            self.next = self.prev = None  # Not actually needed.
+            self.next = self.prev = None
 
         def _delete_from_val(self):
             if self.leapback is not None:
                 self.leapback.leap = self.leap
             if self.leap is not None:
                 self.leap.leapback = self.leapback
-            self.leap = self.leapback = None  # Not actually needed.
+            self.leap = self.leapback = None
 
-        def append_to_pos(self, next):
+        def _append_to_pos(self, next):
             self.next, next.prev = next, self
 
-        def append_to_val(self, next):
+        def _append_to_val(self, next):
             self.leap, next.leapback = next, self
 
     def __init__(self, init=None):
@@ -66,13 +71,10 @@ class Leap:
             node = node.next
 
     def occurrences(self, val):  # Iterate on all nodes with value val.
-        node = self.first[val]
+        node = self.first.get(val)
         while node is not None:
             yield node
             node = node.leap
-
-    def to_python_list(self):
-        return [x.val for x in self]
 
     def delete(self, node):
         self._delete_from_pos(node)
@@ -106,12 +108,12 @@ class Leap:
         if self.start is None:  # First item.
             self.start = node
         else:
-            self.end.append_to_pos(node)
+            self.end._append_to_pos(node)
         self.end = node
 
     def _append_to_val(self, node):
-        if node.val not in self.first:  # First item.
+        if self.first.get(node.val) is None:  # First item.
             self.first[node.val] = node
         else:
-            self.last[node.val].append_to_val(node)
+            self.last[node.val]._append_to_val(node)
         self.last[node.val] = node

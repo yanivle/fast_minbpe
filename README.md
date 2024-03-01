@@ -4,11 +4,13 @@ For example, on my laptop, training/tokenizing the taylorswift.txt file with a v
 
 |              |  minbpe (Karpathy's)       |   fast_minbpe (this repo)|
 |--------------|---------------|--------------|
-|Training      |  110.10 secs  | 1.89 secs   |
-|Tokenizing    |  190.91 secs  | 0.84 secs    |
+|Training      |  110.10 secs  | 1.59 secs   |
+|Tokenizing    |  190.91 secs  | 0.98 secs    |
 
-Training fast_minbpe on the same text with a GPT-4-sized vocab of 100K takes only slightly longer at 3.11 secs (and results in a single token :laughing:).
+So 69X faster training in this case.
 
-The data structures I developed for this are in [leap.py](leap.py) and [heapykiyay.py](heapykiyay.py), and the BPE impl is in [fast_minbpe.ipynb](fast_minbpe.ipynb).
+Training fast_minbpe on the same text with a GPT-4-sized vocab of 100K takes only slightly longer at 3.00 secs (and results in a single token :laughing: - need to run it on more text).
 
-You can find a short writeup on [my website](https://yanivle.github.io/ai/2024/02/23/fast_minbpe.html) (including a more compact code that's unfortunately ~2X slower).
+Please find the BPE impl in [fast_minbpe.ipynb](fast_minbpe.ipynb) and the two data structures that it is based on in [leap.py](leap.py) and [multiset.py](multiset.py).
+
+You can find a short writeup on [my website](https://yanivle.github.io/ai/2024/02/23/fast_minbpe.html) (including a more compact code that's unfortunately slower :)).
