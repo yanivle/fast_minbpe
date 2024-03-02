@@ -1,4 +1,4 @@
-from mytimeit import timeit
+from util.mytimeit import timeit
 from itertools import pairwise
 from datastructures import Leap, Multiset, CountLeap
 
