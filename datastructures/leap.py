@@ -3,7 +3,8 @@
 # all elements as well as efficient in-order iteration on all elements *with a
 # given value*.
 #
-# Specifically, it supports the same ops as a basic doubly-linked list in O(1):
+# Specifically, it supports the same ops as a basic doubly-linked list in O(1),
+# but importantly trades insert(x) for append(x):
 # - append(x): appends x to the end of the leap.
 # - delete(n): removes node n from the leap.
 # - start(x): returns the first node in the leap.
@@ -11,7 +12,7 @@
 # - next(n): returns the node following node n.
 # - prev(n): returns the node preceding node n.
 #
-# It also supports these leap-specific operations in O(1) as well:
+# In return, it supports these leap-specific operations in O(1) as well:
 # - first(x): returns the first node in the leap *with value x*.
 # - last(x): returns the last node in the leap *with value x*.
 # - leap(n): returns first node after node n *with the same value as n*.
