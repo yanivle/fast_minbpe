@@ -24,9 +24,9 @@ class Multiset:
             self.val = val
             self.pos = pos
 
-        def __lt__(self, other):  # We're breaking ties by value.
-            return self.count < other.count or (self.count == other.count and self.val < other.val)
-            # This nicer line is slower:
+        def __lt__(self, other):
+            return self.count < other.count
+            # Breaking ties explicitly makes the heap update more often and results in a significant slowdown:
             # return (self.count, self.val, self.pos) < (other.count, other.val, other.pos)
 
     def __init__(self, init=None):
