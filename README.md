@@ -11,7 +11,7 @@ For example, on my laptop, training/tokenizing the [taylorswift.txt](data/taylor
 
 **So ~80X faster training in this case.**
 
-Training a vocab size of 100K on [Swann's Way](data/0300511.txt) (~1MB) takes 9.72 seconds, on [the bible](https://github.com/mxw/grmr/blob/master/src/finaltests/bible.txt) (~4.3MB) 30.19 seconds, and on [a corpus of json reddit jokes](https://github.com/taivop/joke-dataset/blob/master/reddit_jokes.json) (67MB) around 9.5 minutes.
+Training a vocab size of 100K on [Swann's Way](data/0300511.txt) (~1MB) takes 9.72 seconds, on [the bible](https://github.com/mxw/grmr/blob/master/src/finaltests/bible.txt) (~4.3MB) 30.19 seconds, and on [a corpus of json reddit jokes](https://github.com/taivop/joke-dataset/blob/master/reddit_jokes.json) (67MB) just under 9.5 minutes.
 
 
 - [bpe.py](bpe.py) - the BPE impl.
