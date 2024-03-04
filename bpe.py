@@ -4,22 +4,25 @@ from datastructures import Leap, Multiset, CountLeap
 
 
 def build_pairs_leap(text):  # Build a leap of all overlapping pairs.
+    # For text "aaabd" the leap will contain: (a,a), (a, a), (a, b), (b, d)
     return Leap(pairwise(t for t in text.encode('utf-8')))
 
 
 def init_pairs_stats(text):  # Initialize a multiset with all overlapping pairs.
+    # For text "aaabd" the multiset will contain: {(a,a): 2, (a, b): 1, (b, d): 1}
     return Multiset(pairwise(t for t in text.encode('utf-8')))
 
 
 def merge(pair, new_id, leap):
     for node in list(leap.occurrences(pair)):
-        if node.val != pair:  # Might happen if pair[0] == pair[1].
+        if node.val != pair:  # Don't merge if current node was already updated (might happen if pair[0] == pair[1]).
             continue
-        if node.prev is not None:
+        # Say we're merging "bc" to "X" in "abcd", so our leap holds (a, b), (b, c), (c, d) and we're visiting node (b, c)
+        if node.prev is not None:  # Update the previous node: (a, X), (b, c), (c, d)
             leap.set_value(node.prev, (node.prev.val[0], new_id))
-        if node.next is not None:
+        if node.next is not None:  # Update the next node: (a, X), (b, c), (X, d)
             leap.set_value(node.next, (new_id, node.next.val[1]))
-        leap.delete(node)
+        leap.delete(node)  # Delete ourselves: (a, X), (X, d)
 
 
 def train(text, vocab_size, verbose=False):
@@ -31,7 +34,7 @@ def train(text, vocab_size, verbose=False):
     stats = timeit(lambda: init_pairs_stats(text), 'init_pairs_stats')
     leap_with_stats = CountLeap(leap, stats)
     for i in range(n_merges):
-        if not stats: break
+        if not stats: break  # Stop if we only have one token (we should probably stop earlier).
         top_pair = stats.most_common
         new_id = len(vocab)
         merge_tree.append((top_pair, new_id))
