@@ -6,12 +6,12 @@ For example, on my laptop, training/tokenizing the [taylorswift.txt](data/taylor
 
 |              |  minbpe (Karpathy's)       |   fast_minbpe (this repo)|
 |--------------|---------------|--------------|
-|Training      |  110.10 secs  | 1.59 secs   |
-|Tokenizing    |  190.91 secs  | 0.98 secs    |
+|Training      |  110.10 secs  | 1.40 secs   |
+|Tokenizing    |  190.91 secs  | 0.80 secs    |
 
-**So 69X faster training in this case.**
+**So 78X faster training in this case.**
 
-Training on [Swann's Way](data/0300511.txt) (~1MB) with a vocab size of 100K takes 64.16 seconds.
+Training on [Swann's Way](data/0300511.txt) (~1MB) with a vocab size of 100K takes 63.16 seconds.
 
 
 - [bpe.py](bpe.py) - the BPE impl.

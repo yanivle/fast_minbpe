@@ -33,6 +33,8 @@ class Leap:
     # Internally, a leap-node is just a superposition of 2 doubly-linked lists,
     # one for prev/next and another for leapback/leap.
     class Node:
+        __slots__ = 'val', 'prev', 'next', 'leap', 'leapback'
+
         def __init__(self, val):
             self.val = val
             self.prev, self.next, self.leap, self.leapback = None, None, None, None

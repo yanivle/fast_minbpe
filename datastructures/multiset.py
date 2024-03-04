@@ -17,6 +17,8 @@ from collections import Counter
 
 class Multiset:
     class Node:
+        __slots__ = 'count', 'val', 'pos'
+
         def __init__(self, count, val, pos):
             self.count = count
             self.val = val
