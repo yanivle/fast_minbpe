@@ -8,12 +8,17 @@
 # Internaly this is implemented with a modified max-heap that supports increasing
 # and decreasing internal elements.
 #
-# This is essentially the same as collections.Counter (I should have just used
-# their API in retrospect) BUT most_common is MUCH faster.
+# This is essentially the same as collections.Counter BUT most_common queries
+# are MUCH faster (see multiset_tests.ipynb).
+#
+# As a final optimization, updates are aggregated (into the to_add and to_remove
+# dicts) and only committed to the heap when needed. This pays off if we're
+# updating the same element several times before performing a query. Lazy data
+# structures are often better :)
 #
 # I have a shorter but slower impl here: https://yanivle.github.io/ai/2024/02/23/fast_minbpe.html
 
-from collections import Counter
+from collections import Counter, defaultdict
 
 class Multiset:
     class Node:
@@ -26,16 +31,23 @@ class Multiset:
 
         def __lt__(self, other):
             return self.count < other.count
-            # Breaking ties explicitly makes the heap update more often and results in a significant slowdown:
+            # Breaking ties explicitly, forcing more heap update, results in a significant slowdown:
             # return (self.count, self.val, self.pos) < (other.count, other.val, other.pos)
 
     def __init__(self, init=None):
         self.l = []  # A heap of nodes.
         self.d = {}  # A map from value to its node.
-        for item, count in Counter(init).items():  # Counter constructs faster than us.
-            self.add(item, count)
+        self.to_add = defaultdict(int)
+        self.to_remove = defaultdict(int)
+        self.to_add.update(Counter(init))
 
     def add(self, item, count=1):
+        self.to_add[item] += count
+
+    def remove(self, item, count=1):
+        self.to_remove[item] += count
+
+    def _add(self, item, count=1):
         node = self.d.get(item)
         if node is None:
             node = self.d[item] = Multiset.Node(0, item, len(self.l))
@@ -43,7 +55,7 @@ class Multiset:
         node.count += count
         self._item_increased(node.pos)
 
-    def remove(self, item, count=1):
+    def _remove(self, item, count=1):
         node = self.d[item]
         node.count -= count
         self._item_decreased(node.pos)
@@ -58,15 +70,26 @@ class Multiset:
                     self._item_decreased(last.pos)
             del self.d[item]
 
+    def _commit(self):
+        for pair, count in self.to_add.items():
+            self._add(pair, count)
+        for pair, count in self.to_remove.items():
+            self._remove(pair, count)
+        self.to_add.clear()
+        self.to_remove.clear()
+
     def count(self, item):
+        self._commit()
         if item not in self.d: return 0
         return self.d[item].count
 
     @property
     def most_common(self):
+        self._commit()
         return self.l[0].val
 
     def __bool__(self):
+        self._commit()
         return bool(self.l)
 
     # The below functions maintain the heap property:

@@ -6,15 +6,15 @@ For example, on my laptop, training/tokenizing the [taylorswift.txt](data/taylor
 
 |              |  minbpe (Karpathy's)       |   fast_minbpe (this repo)|
 |--------------|---------------|--------------|
-|Training      |  110.10 secs  | 1.32 secs   |
-|Tokenizing    |  190.91 secs  | 0.78 secs    |
+|Training      |  110.10 secs  | 1.00 secs   |
+|Tokenizing    |  190.91 secs  | 0.52 secs    |
 
-**So ~80X faster training in this case.**
+**So 100X faster training in this case.**
 
-Training a vocab size of 100K on [Swann's Way](data/0300511.txt) (~1MB) takes 9.72 seconds, on [the bible](https://github.com/mxw/grmr/blob/master/src/finaltests/bible.txt) (~4.3MB) 30.19 seconds, and on [a corpus of json reddit jokes](https://github.com/taivop/joke-dataset/blob/master/reddit_jokes.json) (67MB) just under 9.5 minutes.
+Training a vocab size of 100K on [Swann's Way](data/0300511.txt) (~1MB) takes 8.15 seconds, on [the bible](data/bible.txt) (~4.3MB) 24.49 seconds, and on [a corpus of reddit jokes](data/reddit_jokes.json) (~69MB) just under 5 minutes.
 
 
 - [bpe.py](bpe.py) - the BPE impl.
 - [fast_minbpe.ipynb](fast_minbpe.ipynb) - brief analysis and results.
-- [datastructures/](datastructures/) - [Leap](datastructures/leap.py) and [Multiset](datastructures/multiset.py) (the data structures that make this fast).
+- [datastructures/](datastructures/) - [IndexedList](datastructures/indexedlist.py) and [Multiset](datastructures/multiset.py) (the data structures that make this fast).
 - [my website](https://yanivle.github.io/ai/2024/02/23/fast_minbpe.html) - short writeup.
