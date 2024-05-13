@@ -12,8 +12,8 @@ def init_pairs_stats(text):  # Initialize a Multiset with all overlapping pairs.
     return Multiset(pairwise(t for t in text.encode('utf-8')))
 
 
-def merge(pair, new_id, indexed_list: IndexedList, stats:Multiset=None):
-    for node in indexed_list.stale_index[pair]:
+def merge(pair, new_id, indexed_list: IndexedList, stats:Multiset|None=None):
+    for node in indexed_list.index[pair]:
         if node.val != pair[0] or node.next is None or node.next.val != pair[1]:
             continue  # The index was stale - continue.
         # Say we're merging "bc" to "X" in "abcd", and the node we're visiting now is "b".

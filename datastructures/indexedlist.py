@@ -17,13 +17,13 @@ class IndexedList:
             self.next = self.prev = None
 
     def __init__(self, l):
-        self.stale_index = {}
+        self.index = {}
         l = iter(l)
         a = next(l)
         self.start = prev_node = IndexedList.Node(a, None, None)
         for b in l:
             prev_node.next = node = IndexedList.Node(b, prev_node, None)
-            self.index((a, b), prev_node)
+            self.add_to_index((a, b), prev_node)
             a, prev_node = b, node
 
     def __iter__(self):
@@ -34,10 +34,10 @@ class IndexedList:
 
     def update_index(self, node):  # Update index before/after node.
         if node.prev is not None:
-            self.index((node.prev.val, node.val), node.prev)
+            self.add_to_index((node.prev.val, node.val), node.prev)
         if node.next is not None:
-            self.index((node.val, node.next.val), node)
+            self.add_to_index((node.val, node.next.val), node)
 
-    def index(self, pair, node):
-        self.stale_index.setdefault(pair, []).append(node)
+    def add_to_index(self, pair, node):
+        self.index.setdefault(pair, []).append(node)
 

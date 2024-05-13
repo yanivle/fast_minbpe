@@ -8,8 +8,8 @@
 # Internaly this is implemented with a modified max-heap that supports increasing
 # and decreasing internal elements.
 #
-# This is essentially the same as collections.Counter BUT most_common queries
-# are MUCH faster (see multiset_tests.ipynb).
+# This is essentially the same as collections.Counter but most_common and top_k
+# queries are much faster (see multiset_tests.ipynb).
 #
 # As a final optimization, updates are aggregated (into the to_add and to_remove
 # dicts) and only committed to the heap when needed. This pays off if we're
@@ -19,24 +19,32 @@
 # I have a shorter but slower impl here: https://yanivle.github.io/ai/2024/02/23/fast_minbpe.html
 
 from collections import Counter, defaultdict
+from typing import Any
+import heapq
+
+class Node:
+    __slots__ = 'count', 'val', 'pos'
+
+    def __init__(self, count: int, val: Any, pos: int):
+        self.count = count
+        self.val = val
+        self.pos = pos
+
+    @property
+    def key(self):  # key for comparisons
+        return self.count
+        # Breaking ties explicitly, forcing more heap update, results in a significant slowdown:
+        # return (self.count, self.val, self.pos)
+
+    def __lt__(self, other):
+        return self.key < other.key
+
 
 class Multiset:
-    class Node:
-        __slots__ = 'count', 'val', 'pos'
-
-        def __init__(self, count, val, pos):
-            self.count = count
-            self.val = val
-            self.pos = pos
-
-        def __lt__(self, other):
-            return self.count < other.count
-            # Breaking ties explicitly, forcing more heap update, results in a significant slowdown:
-            # return (self.count, self.val, self.pos) < (other.count, other.val, other.pos)
-
-    def __init__(self, init=None):
+    def __init__(self, init=None, node_type=Node):
         self.l = []  # A heap of nodes.
         self.d = {}  # A map from value to its node.
+        self.node_type = node_type
         self.to_add = defaultdict(int)
         self.to_remove = defaultdict(int)
         self.to_add.update(Counter(init))
@@ -50,7 +58,7 @@ class Multiset:
     def _add(self, item, count=1):
         node = self.d.get(item)
         if node is None:
-            node = self.d[item] = Multiset.Node(0, item, len(self.l))
+            node = self.d[item] = self.node_type(0, item, len(self.l))
             self.l.append(node)
         node.count += count
         self._item_increased(node.pos)
@@ -59,16 +67,9 @@ class Multiset:
         node = self.d[item]
         node.count -= count
         self._item_decreased(node.pos)
-        if node.count == 0:
-            last = self.l.pop()
-            if node is not last:
-                self.l[node.pos] = last
-                last.pos = node.pos
-                if node < last:
-                    self._item_increased(last.pos)
-                else:
-                    self._item_decreased(last.pos)
-            del self.d[item]
+        # We could actually remove items with 0-count from the list, but
+        # since for some scores its helpful to have items with arbitrary
+        # counts, including negative, we're never actually removing items.
 
     def _commit(self):
         for pair, count in self.to_add.items():
@@ -87,6 +88,19 @@ class Multiset:
     def most_common(self):
         self._commit()
         return self.l[0].val
+
+    def top_k(self, k: int) -> list[tuple[Any, int]]:
+        self._commit()
+        totup = lambda n: (-n.key, n.val, n.count, n.pos)
+        res, heap = [], [totup(self.l[0])]
+        for _ in range(k):
+            if not heap: break
+            _key, val, count, pos = heapq.heappop(heap)
+            res.append((val, count))
+            for child_pos in [pos * 2 + 1, pos * 2 + 2]:
+                if child_pos < len(self.l):
+                    heapq.heappush(heap, totup(self.l[child_pos]))
+        return res
 
     def __bool__(self):
         self._commit()
